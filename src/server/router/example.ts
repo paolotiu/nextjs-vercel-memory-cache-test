@@ -1,15 +1,23 @@
-import { createRouter } from "./context";
-import { z } from "zod";
+import { createRouter } from './context';
+import { z } from 'zod';
+import cache from 'memory-cache';
 
-export const exampleRouter = createRouter().query("hello", {
-  input: z
-    .object({
-      text: z.string().nullish(),
-    })
-    .nullish(),
+const exampleResponse = 'Hey';
+export const exampleRouter = createRouter().query('hello', {
   resolve({ input }) {
+    const cached = cache.get('test');
+    if (cached) {
+      return {
+        cached: true,
+        message: cached,
+      };
+    }
+
+    cache.put('test', exampleResponse);
+
     return {
-      greeting: `Hello ${input?.text ?? "world"}`,
+      cached: false,
+      message: 'Hey; not cached',
     };
   },
 });
