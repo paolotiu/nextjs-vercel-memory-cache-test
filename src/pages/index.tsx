@@ -20,8 +20,14 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
-        <h3 className="text-3xl font-medium">CACHED: {hello.data?.cached ? 'YES' : 'NO'}</h3>
-        <p className="text-lg">Message: {hello.data?.message}</p>
+        {hello.isLoading ? (
+          <h3 className="text-3xl">LOADING...</h3>
+        ) : (
+          <>
+            <h3 className="text-3xl font-medium">CACHED: {hello.data?.cached ? 'YES' : 'NO'}</h3>
+            <p className="text-lg">Message: {hello.data?.message}</p>
+          </>
+        )}
       </main>
     </>
   );
