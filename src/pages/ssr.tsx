@@ -1,9 +1,29 @@
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { createSSGHelpers } from '@trpc/react/ssg';
+import superjson from 'superjson';
+
 import { trpc } from '../utils/trpc';
+import { appRouter } from '../server/router';
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const ssg = createSSGHelpers({
+    ctx: {} as any,
+    router: appRouter,
+    transformer: superjson,
+  });
+
+  await ssg.prefetchQuery('example.hello');
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+  };
+};
 
 const Home: NextPage = () => {
   const hello = trpc.useQuery(['example.hello']);
+  const { mutate: purge } = trpc.useMutation(['example.purge']);
 
   return (
     <>
@@ -22,6 +42,13 @@ const Home: NextPage = () => {
             <p className="text-lg">Message: {hello.data?.message}</p>
           </>
         )}
+
+        <button
+          className="p-2 rounded bg-black text-white font-medium mt-4 hover:bg-gray-900"
+          onClick={() => purge()}
+        >
+          Purge Cache
+        </button>
       </main>
     </>
   );
